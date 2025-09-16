@@ -17,12 +17,47 @@
  * Text Domain:       pp-disable-xml-rpc
  */
 
+/**
+ * Send XML-RPC fault response.
+ */
+if ( ! function_exists( 'pp_send_xmlrpc_fault' ) ) {
+	function pp_send_xmlrpc_fault() {
+		header( 'Content-Type: text/xml; charset=UTF-8' );
+		header( 'HTTP/1.1 405 Method Not Allowed' );
+
+		$error_message = \esc_xml( __( 'XML-RPC services are disabled on this site.', 'pp-disable-xml-rpc' ) );
+
+		echo <<<XML
+	<?xml version="1.0" encoding="UTF-8"?>
+	<methodResponse>
+	<fault>
+		<value>
+		<struct>
+			<member>
+			<name>faultCode</name>
+			<value><int>405</int></value>
+			</member>
+			<member>
+			<name>faultString</name>
+			<value><string>{$error_message}</string></value>
+			</member>
+		</struct>
+		</value>
+	</fault>
+	</methodResponse>
+	XML;
+		exit;
+	}
+}
+
 // Disable XML-RPC using the 'xmlrpc_enabled' filter.
 add_filter( 'xmlrpc_enabled', '__return_false' );
 
 // Add an empty class to bypass Core.
 class pp_wp_xmlrpc_server {
-	public function serve_request() { return; }
+	public function serve_request() {
+		pp_send_xmlrpc_fault();
+	}
 }
 add_filter( 'wp_xmlrpc_server_class', function() {
   return 'pp_wp_xmlrpc_server';
@@ -31,10 +66,6 @@ add_filter( 'wp_xmlrpc_server_class', function() {
 // Bail early if XMLRPC_REQUEST is defined.
 add_action( 'init', function() {
 	if ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST ) {
-		wp_die( 
-			__( 'XML-RPC services are disabled on this site.', 'pp-disable-xml-rpc' ),
-			__( 'XML-RPC Disabled', 'pp-disable-xml-rpc' ), 
-			array( 'response' => 403 )
-		);
+		pp_send_xmlrpc_fault();
 	}
 } );
