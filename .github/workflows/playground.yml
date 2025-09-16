@@ -10,34 +10,40 @@ jobs:
       contents: read
       pull-requests: write
       actions: read
+
     steps:
       - uses: actions/checkout@v4
 
-      # Create a folder named exactly like the repo, copy the plugin into it
-      - name: Build plugin folder with stable name
+      # Put plugin files into a folder named exactly like the repo
+      - name: Stage plugin in <repo> folder
         run: |
           set -euxo pipefail
           REPO="${{ github.event.repository.name }}"
           rm -rf "$REPO"
           mkdir "$REPO"
-          # copy everything except Git metadata and CI configs
           rsync -a \
-            --exclude='.git' --exclude='.gitignore' --exclude='.github' \
+            --exclude='.git' \
+            --exclude='.github' \
             --exclude='node_modules' \
-            ./ "$REPO/$REPO"
+            ./ "$REPO/"
 
-      # Upload that folder as an artifact. GitHub will zip it for us,
-      # keeping the top-level folder name equal to $REPO.
-      - name: Upload plugin artifact
+      # Create a zip that *includes* the top-level folder
+      - name: Make repo-named zip that preserves folder
+        run: |
+          set -euxo pipefail
+          REPO="${{ github.event.repository.name }}"
+          zip -r "${REPO}.zip" "$REPO"
+
+      # Upload that zip as the artifact
+      - name: Upload plugin zip
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ github.event.repository.name }}
-          path: ${{ github.event.repository.name }}/
+          name: plugin
+          path: ${{ github.event.repository.name }}.zip
 
-      # Post the Playground link that installs from the artifact via nightly.link
+      # Comment with Playground link pointing at the artifact
       - uses: mshick/add-pr-comment@v2
         with:
           message: |
             **Test on Playground**
-            [Test this pull request on the Playground](https://playground.wordpress.net/#{"landingPage":"/wp-admin/","features":{"networking":true},"steps":[{"step":"defineWpConfigConsts","consts":{"IS_PLAYGROUND_PREVIEW":true}},{"step":"login","username":"admin","password":"password"},{"step":"installPlugin","pluginZipFile":{"resource":"url","url":"https://nightly.link/${{ github.repository }}/actions/runs/${{ github.run_id }}/plugin.zip"},"options":{"activate":true}}]})
-            or [download the zip](https://nightly.link/${{ github.repository }}/actions/runs/${{ github.run_id }}/plugin.zip)
+            [Test this pull request on the Playground](https://playground.wordpress.net/#{"landingPage":"/wp-admin/","features":{"networking":true},"steps":[{"step":"defineWpConfigConsts","consts":{"IS_PLAYGROUND_PREVIEW":true}},{"step":"login","username":"admin","password":"password"},{"step":"installPlugin","pluginZipFile":{"res]()_)
