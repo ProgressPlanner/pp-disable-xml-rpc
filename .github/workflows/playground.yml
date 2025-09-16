@@ -38,7 +38,7 @@ jobs:
       - name: Upload plugin zip
         uses: actions/upload-artifact@v4
         with:
-          name: plugin
+          name: ${{ github.event.repository.name }}
           path: ${{ github.event.repository.name }}.zip
 
       # Comment with Playground link pointing at the artifact
