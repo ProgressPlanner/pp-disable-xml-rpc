@@ -24,7 +24,7 @@ jobs:
           rsync -a \
             --exclude='.git' --exclude='.gitignore' --exclude='.github' \
             --exclude='node_modules' \
-            ./ "$REPO/"
+            ./ "$REPO/$REPO"
 
       # Upload that folder as an artifact. GitHub will zip it for us,
       # keeping the top-level folder name equal to $REPO.
@@ -32,7 +32,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ${{ github.event.repository.name }}
-          path: /
+          path: ${{ github.event.repository.name }}/
 
       # Post the Playground link that installs from the artifact via nightly.link
       - uses: mshick/add-pr-comment@v2
