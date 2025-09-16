@@ -31,6 +31,6 @@ add_filter( 'wp_xmlrpc_server_class', function() {
 // Bail early if XMLRPC_REQUEST is defined.
 add_action( 'init', function() {
 	if ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST ) {
-		die();
+		wp_die( __( 'XML-RPC services are disabled on this site.', 'pp-disable-xml-rpc' ), __( 'XML-RPC Disabled', 'pp-disable-xml-rpc' ), array( 'response' => 403 ) );
 	}
 } );
