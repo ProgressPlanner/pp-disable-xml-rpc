@@ -10,6 +10,8 @@ jobs:
       contents: read
       pull-requests: write
       actions: read
+    env:
+      LANDING_PAGE: "/wp-admin/edit-tags.php?taxonomy=post_tag"
 
     steps:
       - uses: actions/checkout@v4
@@ -53,5 +55,5 @@ jobs:
         with:
           message: |
             **Test on Playground**
-            [Test this pull request on the Playground](https://playground.wordpress.net/#{"landingPage":"/wp-admin/edit-tags.php?taxonomy=post_tag","features":{"networking":true},"steps":[{"step":"defineWpConfigConsts","consts":{"IS_PLAYGROUND_PREVIEW":true}},{"step":"login","username":"admin","password":"password"},{"step":"installPlugin","pluginZipFile":{"resource":"url","url":"https://nightly.link/${{ github.repository }}/actions/runs/${{ github.run_id }}/${{ github.event.repository.name }}.zip"},"options":{"activate":true}}]})
+            [Test this pull request on the Playground](https://playground.wordpress.net/#{"landingPage":"${{ env.LANDING_PAGE }}","features":{"networking":true},"steps":[{"step":"defineWpConfigConsts","consts":{"IS_PLAYGROUND_PREVIEW":true}},{"step":"login","username":"admin","password":"password"},{"step":"installPlugin","pluginZipFile":{"resource":"url","url":"https://nightly.link/${{ github.repository }}/actions/runs/${{ github.run_id }}/${{ github.event.repository.name }}.zip"},"options":{"activate":true}}]})
             or [download the zip](https://nightly.link/${{ github.repository }}/actions/runs/${{ github.run_id }}/${{ github.event.repository.name }}.zip)
