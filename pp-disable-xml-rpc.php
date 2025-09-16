@@ -17,4 +17,20 @@
  * Text Domain:       pp-disable-xml-rpc
  */
 
+// Disable XML-RPC using the 'xmlrpc_enabled' filter.
 add_filter( 'xmlrpc_enabled', '__return_false' );
+
+// Add an empty class to bypass Core.
+class pp_wp_xmlrpc_server {
+	public function serve_request() { return; }
+}
+add_filter( 'wp_xmlrpc_server_class', function() {
+  return 'pp_wp_xmlrpc_server';
+} );
+
+// Bail early if XMLRPC_REQUEST is defined.
+add_action( 'init', function() {
+	if ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST ) {
+		die();
+	}
+} );
