@@ -11,7 +11,7 @@ jobs:
       pull-requests: write
       actions: read
     env:
-      LANDING_PAGE: "/wp-admin/edit-tags.php?taxonomy=post_tag"
+      LANDING_PAGE: "/wp-admin/"
 
     steps:
       - uses: actions/checkout@v4
