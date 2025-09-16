@@ -4,13 +4,40 @@ on:
   pull_request:
 
 jobs:
-  test:
+  playground:
     runs-on: ubuntu-latest
     permissions:
+      contents: read
       pull-requests: write
+      actions: read
     steps:
+      - uses: actions/checkout@v4
+
+      # Create a folder named exactly like the repo, copy the plugin into it
+      - name: Build plugin folder with stable name
+        run: |
+          set -euxo pipefail
+          REPO="${{ github.event.repository.name }}"
+          rm -rf "$REPO"
+          mkdir "$REPO"
+          # copy everything except Git metadata and CI configs
+          rsync -a \
+            --exclude='.git' --exclude='.gitignore' --exclude='.github' \
+            --exclude='node_modules' \
+            ./ "$REPO/"
+
+      # Upload that folder as an artifact. GitHub will zip it for us,
+      # keeping the top-level folder name equal to $REPO.
+      - name: Upload plugin artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: plugin
+          path: ${{ github.event.repository.name }}/
+
+      # Post the Playground link that installs from the artifact via nightly.link
       - uses: mshick/add-pr-comment@v2
         with:
           message: |
             **Test on Playground**
-            [Test this pull request on the Playground](https://playground.wordpress.net/#{"landingPage":"/wp-admin/edit-tags.php?taxonomy=post_tag","features":{"networking":true},"steps":[{"step":"defineWpConfigConsts","consts":{"IS_PLAYGROUND_PREVIEW":true}},{"step":"login","username":"admin","password":"password"},{"step":"installPlugin","pluginZipFile":{"resource":"url","url":"https://bypass-cors.altha.workers.dev/${{ github.server_url }}/${{ github.repository }}/archive/${{ github.sha }}.zip"},"options":{"activate":true}}]}) or [download the zip](${{ github.server_url }}/${{ github.repository }}/archive/${{ github.sha }}.zip)
+            [Test this pull request on the Playground](https://playground.wordpress.net/#{"landingPage":"/wp-admin/","features":{"networking":true},"steps":[{"step":"defineWpConfigConsts","consts":{"IS_PLAYGROUND_PREVIEW":true}},{"step":"login","username":"admin","password":"password"},{"step":"installPlugin","pluginZipFile":{"resource":"url","url":"https://nightly.link/${{ github.repository }}/actions/runs/${{ github.run_id }}/plugin.zip"},"options":{"activate":true}}]})
+            or [download the zip](https://nightly.link/${{ github.repository }}/actions/runs/${{ github.run_id }}/plugin.zip)
