@@ -20,21 +20,30 @@
 // Disable XML-RPC using the 'xmlrpc_enabled' filter.
 add_filter( 'xmlrpc_enabled', '__return_false' );
 
+/**
+ * Die to prevent XMLRPC requests.
+ */
+function pp_disable_xml_rpc_die() {
+	wp_die( 
+		__( 'XML-RPC services are disabled on this site.', 'pp-disable-xml-rpc' ),
+		__( 'XML-RPC Disabled', 'pp-disable-xml-rpc' ), 
+		array( 'response' => 403 )
+	);
+}
+
 // Add an empty class to bypass Core.
 class pp_wp_xmlrpc_server {
-	public function serve_request() { return; }
+	public function serve_request() {
+		pp_disable_xml_rpc_die();
+	}
 }
 add_filter( 'wp_xmlrpc_server_class', function() {
-  return 'pp_wp_xmlrpc_server';
+	return 'pp_wp_xmlrpc_server';
 } );
 
 // Bail early if XMLRPC_REQUEST is defined.
 add_action( 'init', function() {
 	if ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST ) {
-		wp_die( 
-			__( 'XML-RPC services are disabled on this site.', 'pp-disable-xml-rpc' ),
-			__( 'XML-RPC Disabled', 'pp-disable-xml-rpc' ), 
-			array( 'response' => 403 )
-		);
+		pp_disable_xml_rpc_die();
 	}
 } );
