@@ -1,0 +1,20 @@
+{
+    "name": "progressplanner/pp-disable-xml-rpc",
+    "description": "A utility plugin to disable XML-RPC in WordPress.",
+    "type": "wordpress-plugin",
+    "homepage": "https://progressplanner.com",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Team Emilia Projects",
+            "homepage": "https://prpl.fyi/about"
+        }
+    ],
+    "require": {
+        "php": ">=7.4"
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "sort-packages": true
+    }
+}
