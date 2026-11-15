@@ -6,7 +6,7 @@
  *
  * Plugin name:       Disable XML-RPC by Progress Planner
  * Plugin URI:        https://progressplanner.com
- * Description:       A utility plugin to disable XML-RPC.
+ * Description:       Disable WordPress XML-RPC completely with a lightweight, no-settings hardening plugin.
  * Requires at least: 6.7
  * Tested up to:      6.9
  * Requires PHP:      7.4
