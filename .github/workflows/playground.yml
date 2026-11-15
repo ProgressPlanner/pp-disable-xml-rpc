@@ -3,6 +3,9 @@ name: Playground Comment
 on:
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
   playground:
     runs-on: ubuntu-latest
@@ -14,16 +17,19 @@ jobs:
       LANDING_PAGE: "/wp-admin/"
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       # Prepare a folder named exactly like the repo as the plugin root.
       # If the repo already has such a folder (common for WP plugins), use it.
       # Otherwise, stage one and copy root files into it (excluding CI junk).
       - name: Prepare plugin folder
         id: prep
+        env:
+          REPO: ${{ github.event.repository.name }}
         run: |
           set -euxo pipefail
-          REPO="${{ github.event.repository.name }}"
           if [ -d "$REPO" ]; then
             # Plugin already lives in a subfolder named like the repo
             echo "PKG_DIR=$REPO" >> "$GITHUB_OUTPUT"
@@ -35,6 +41,7 @@ jobs:
               --exclude='.git' \
               --exclude='.github' \
               --exclude='node_modules' \
+              --exclude='tests' \
               --exclude="${STAGE}" \
               ./ "$STAGE/$REPO/"
             echo "PKG_DIR=$STAGE/$REPO" >> "$GITHUB_OUTPUT"
@@ -43,7 +50,7 @@ jobs:
       # Upload the FOLDER (not a .zip). The artifact service zips it for us,
       # keeping the top-level folder name inside the archive.
       - name: Upload plugin artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: ${{ github.event.repository.name }}
           path: ${{ steps.prep.outputs.PKG_DIR }}
@@ -51,9 +58,12 @@ jobs:
           compression-level: 0
 
       # Comment with a Playground link that installs from the artifact ZIP
-      - uses: mshick/add-pr-comment@v2
+      - uses: mshick/add-pr-comment@b8f338c590a895d50bcbfa6c5859251edc8952fc # v2
+        if: github.event.pull_request.head.repo.full_name == github.repository && github.actor != 'dependabot[bot]'
         with:
           message: |
             **Test on Playground**
             [Test this pull request on the Playground](https://playground.wordpress.net/#{"landingPage":"${{ env.LANDING_PAGE }}","features":{"networking":true},"steps":[{"step":"defineWpConfigConsts","consts":{"IS_PLAYGROUND_PREVIEW":true}},{"step":"login","username":"admin","password":"password"},{"step":"installPlugin","pluginZipFile":{"resource":"url","url":"https://nightly.link/${{ github.repository }}/actions/runs/${{ github.run_id }}/${{ github.event.repository.name }}.zip"},"options":{"activate":true}}]})
             or [download the zip](https://nightly.link/${{ github.repository }}/actions/runs/${{ github.run_id }}/${{ github.event.repository.name }}.zip)
+
+            This disposable preview downloads the PR artifact through the third-party nightly.link service; do not enter production credentials or private data.
