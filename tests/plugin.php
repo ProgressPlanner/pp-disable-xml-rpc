@@ -1,5 +1,12 @@
 <?php
-/** Minimal bootstrap regression checks; run each scenario in a separate process. */
+/**
+ * Minimal bootstrap regression checks; run each scenario in a separate process.
+ *
+ * @package Progress_Planner_Disable_XMLRPC
+ */
+
+// CLI-only fixture: WordPress filesystem and escaping helpers are unavailable.
+// phpcs:disable WordPress.WP.AlternativeFunctions.file_system_operations_fwrite
 
 $scenario = isset( $argv[1] ) ? $argv[1] : '';
 if ( ! in_array( $scenario, array( 'direct', 'xmlrpc', 'normal', 'false' ), true ) ) {
@@ -11,24 +18,42 @@ $completed = false;
 $filters   = array();
 
 // Turn PHP notices and warnings into failures, including direct-access errors.
-set_error_handler( function ( $severity, $message ) {
-	throw new ErrorException( $message, 0, $severity );
-} );
+// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_set_error_handler -- Fail on warnings in the test process.
+set_error_handler(
+	function ( $severity, $message ) {
+		// phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- CLI exception, not HTML output.
+		throw new ErrorException( $message, 0, $severity );
+	}
+);
 
-register_shutdown_function( function () use ( $scenario, &$completed, &$filters ) {
-	$blocked = in_array( $scenario, array( 'direct', 'xmlrpc' ), true );
-	$valid   = null === error_get_last() && $completed === ! $blocked;
-	$valid   = $valid && '' === ob_get_clean();
-	$valid   = $valid && http_response_code() === ( 'xmlrpc' === $scenario ? 403 : 200 );
-	$valid   = $valid && $filters === ( $blocked ? array() : array( 'xmlrpc_enabled' => '__return_false' ) );
-	fwrite( $valid ? STDOUT : STDERR, ( $valid ? 'PASS: ' : 'FAIL: ' ) . $scenario . "\n" );
-	exit( $valid ? 0 : 1 );
-} );
+register_shutdown_function(
+	function () use ( $scenario, &$completed, &$filters ) {
+		$blocked = in_array( $scenario, array( 'direct', 'xmlrpc' ), true );
+		$output  = ob_get_clean();
+		$valid   = null === error_get_last() && ( $blocked ? ! $completed : $completed );
+		$valid   = $valid && '' === $output;
+		$valid   = $valid && http_response_code() === ( 'xmlrpc' === $scenario ? 403 : 200 );
+		$valid   = $valid && ( $blocked ? array() : array( 'xmlrpc_enabled' => '__return_false' ) ) === $filters;
+		fwrite( $valid ? STDOUT : STDERR, ( $valid ? 'PASS: ' : 'FAIL: ' ) . $scenario . "\n" );
+		exit( $valid ? 0 : 1 );
+	}
+);
 
+/**
+ * Record filter registration without bootstrapping WordPress.
+ *
+ * @param string $hook     Filter name.
+ * @param string $callback Callback name.
+ */
 function add_filter( $hook, $callback ) {
 	$GLOBALS['filters'][ $hook ] = $callback;
 }
 
+/**
+ * Set a response code without bootstrapping WordPress.
+ *
+ * @param int $status HTTP response code.
+ */
 function status_header( $status ) {
 	http_response_code( $status );
 }
