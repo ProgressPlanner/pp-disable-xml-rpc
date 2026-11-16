@@ -3,3 +3,5 @@
 /.wordpress.org
 /.distignore
 /tests
+/README.md
+/composer.json
