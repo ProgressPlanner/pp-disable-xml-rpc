@@ -1,4 +1,4 @@
-name: "Deploy to WordPress.org and create release on GitHub"
+name: Publish GitHub release
 
 on:
   push:
@@ -9,30 +9,48 @@ permissions:
   contents: read
 
 jobs:
-  tag:
-    name: New tag
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-      - name: WordPress Plugin Deploy
-        uses: 10up/action-wordpress-plugin-deploy@54bd289b8525fd23a5c365ec369185f2966529c2 # 2.3.0
-        env:
-          SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
-          SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
-  build:
-    name: Create Release
-    needs: tag
+  release:
+    name: Package and release
     runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
-      - name: Create Release
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Validate version and prepare release notes
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          if [[ ! "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Expected a release tag in vMAJOR.MINOR.PATCH format." >&2
+            exit 1
+          fi
+          VERSION="${RELEASE_TAG#v}"
+          test "$VERSION" = "$(awk '/^[[:space:]]*\* Version:/ { print $3; exit }' pp-disable-xml-rpc.php)"
+          test "$VERSION" = "$(awk '/^Stable tag:/ { print $3; exit }' readme.txt)"
+          awk -v version="$VERSION" '
+            $0 == "== Changelog ==" { changelog = 1; next }
+            changelog && $0 == "= " version " =" { notes = 1; next }
+            notes && /^=/ { exit }
+            notes { print }
+          ' readme.txt > "$RUNNER_TEMP/release-notes.md"
+          grep -q '^\* ' "$RUNNER_TEMP/release-notes.md"
+      - name: Build installable plugin ZIP
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/package/pp-disable-xml-rpc"
+          rsync -a --exclude-from=.distignore ./ "$RUNNER_TEMP/package/pp-disable-xml-rpc/"
+          cd "$RUNNER_TEMP/package"
+          zip -qr "$RUNNER_TEMP/pp-disable-xml-rpc.zip" pp-disable-xml-rpc
+          unzip -t "$RUNNER_TEMP/pp-disable-xml-rpc.zip"
+      - name: Publish GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
           RELEASE_TAG: ${{ github.ref_name }}
-        run: gh release create "$RELEASE_TAG" --verify-tag --title "Release $RELEASE_TAG" --notes ""
+        run: |
+          gh release create "$RELEASE_TAG" "$RUNNER_TEMP/pp-disable-xml-rpc.zip" \
+            --verify-tag --title "Release $RELEASE_TAG" \
+            --notes-file "$RUNNER_TEMP/release-notes.md"

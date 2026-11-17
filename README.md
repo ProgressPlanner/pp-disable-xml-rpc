@@ -30,15 +30,7 @@ Do **not** use this plugin if your site depends on XML-RPC for publishing or int
 
 ## Installation
 
-### From WordPress admin
-
-1. Go to **Plugins → Add New**.
-2. Search for **Disable XML-RPC by Progress Planner**.
-3. Install and activate the plugin.
-
-### From GitHub or a ZIP file
-
-1. Download this repository as a ZIP.
+1. Download `pp-disable-xml-rpc.zip` from the [latest GitHub release](https://github.com/ProgressPlanner/pp-disable-xml-rpc/releases/latest).
 2. Upload it via **Plugins → Add New → Upload Plugin**.
 3. Activate the plugin.
 
@@ -76,10 +68,14 @@ XML-RPC requests receive HTTP 403 and stop when this plugin loads. Some WordPres
 bootstrap work has already happened at that point. For protection against request
 floods, block `xmlrpc.php` at your web server or edge before PHP runs.
 
-Releases are deployed by pushing a `v*` tag. The repository's active release-tag
+Releases are published to GitHub by pushing a `vMAJOR.MINOR.PATCH` tag that matches
+the PHP version header and readme stable tag. The workflow builds an installable
+`pp-disable-xml-rpc.zip`, excludes development files and listing artwork using
+`.distignore`, and uses the matching readme changelog section as release notes.
+The repository's active release-tag
 ruleset restricts creating, changing, and deleting these tags to repository admins.
-Review the tagged commit before pushing it. The GitHub release is created only
-after the WordPress.org deployment succeeds.
+Review the tagged commit before pushing it. Releases use the built-in GitHub
+token and do not require WordPress.org credentials.
 
 Playground previews use nightly.link to serve the workflow artifact publicly.
 Use them only as disposable test sites without production credentials or private

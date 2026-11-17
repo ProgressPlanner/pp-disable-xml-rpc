@@ -5,7 +5,7 @@ Tags: security, xml-rpc, hardening, disable xml-rpc
 Requires at least: 6.7
 Tested up to: 7.2
 Requires PHP: 7.4
-Stable tag: 1.6.1
+Stable tag: 1.6.2
 License: MIT
 License URI: https://mit-license.org
 
@@ -33,7 +33,7 @@ Do not activate this plugin if your site depends on XML-RPC for publishing tools
 
 == Installation ==
 
-1. Upload the plugin files to the `/wp-content/plugins/pp-disable-xml-rpc` directory, or install the plugin through the WordPress plugins screen.
+1. Download `pp-disable-xml-rpc.zip` from the [latest GitHub release](https://github.com/ProgressPlanner/pp-disable-xml-rpc/releases/latest) and upload it through **Plugins > Add New > Upload Plugin**, or extract it to `/wp-content/plugins/pp-disable-xml-rpc`.
 2. Activate the plugin through the **Plugins** screen in WordPress.
 3. The plugin starts working immediately. No further setup is required.
 
@@ -57,10 +57,20 @@ No. It is a small hardening utility, not a full security suite.
 
 == Changelog ==
 
+= 1.6.2 =
+* Block XML-RPC requests during plugin loading with an HTTP 403 (Forbidden) response.
+* Confirm compatibility with WordPress 7.1.4, 7.2 Beta 5, and 7.2 RC1; update Tested up to to 7.2.
+* Fix discovery of plugin listing banners and icons.
+* Publish an installable plugin ZIP and release notes through GitHub Releases.
+* Clarify the plugin description and XML-RPC response.
+
 = 1.6.1 =
 * Current stable release.
 
 == Upgrade Notice ==
+
+= 1.6.2 =
+Improves XML-RPC request blocking, fixes listing artwork, and updates compatibility metadata after testing WordPress 7.2 prereleases.
 
 = 1.6.1 =
 A lightweight release that disables XML-RPC with no configuration required.
