@@ -3,7 +3,7 @@ Contributors: progressplanner
 Donate link: https://progressplanner.com/
 Tags: security, xml-rpc, hardening, disable xml-rpc
 Requires at least: 6.7
-Tested up to: 7.1
+Tested up to: 7.2
 Requires PHP: 7.4
 Stable tag: 1.6.1
 License: MIT
