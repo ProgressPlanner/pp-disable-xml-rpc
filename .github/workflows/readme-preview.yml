@@ -10,7 +10,6 @@ on:
       - "**/README.md"
       - "**/*.php"
       - "**/.wordpress-org/**"
-      - "**/.wordpress.org/**"
       - "**/assets/**"
 
 permissions:
