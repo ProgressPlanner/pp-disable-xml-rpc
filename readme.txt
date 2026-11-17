@@ -15,7 +15,7 @@ Disable WordPress XML-RPC completely with a lightweight, no-settings plugin.
 
 Disable XML-RPC by Progress Planner is a focused utility plugin for WordPress sites that do not need XML-RPC enabled.
 
-Once activated, the plugin disables XML-RPC and blocks XML-RPC requests with a 403 response. There are no settings to configure and no ongoing maintenance inside wp-admin.
+Once activated, the plugin disables XML-RPC and blocks XML-RPC requests with an HTTP 403 (Forbidden) response. There are no settings to configure and no ongoing maintenance inside wp-admin.
 
 If you are hardening a site and do not rely on XML-RPC-based publishing or integrations, this plugin offers a simple way to turn that functionality off.
 
