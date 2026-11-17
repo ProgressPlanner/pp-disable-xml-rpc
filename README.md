@@ -1,6 +1,6 @@
 # Disable XML-RPC by Progress Planner
 
-![Disable XML-RPC banner](.wordpress.org/github_banner_disable_xml_rcp_pp.png)
+![Disable XML-RPC banner](.wordpress-org/github_banner_disable_xml_rcp_pp.png)
 
 A lightweight WordPress plugin that disables XML-RPC completely, helping reduce attack surface and block unwanted XML-RPC access with zero configuration.
 
@@ -105,4 +105,4 @@ These cannot be fully managed from files alone, but they will improve the reposi
 - **Description:** Disable WordPress XML-RPC completely with a lightweight, no-settings plugin.
 - **Website:** https://progressplanner.com/
 - **Topics:** `wordpress`, `wordpress-plugin`, `xml-rpc`, `security`, `hardening`, `site-security`, `progress-planner`
-- **Social preview:** Use `.wordpress.org/banner-1544x500.png` or create a 1280×640 social card based on the existing banner
+- **Social preview:** Use `.wordpress-org/banner-1544x500.png` or create a 1280×640 social card based on the existing banner
