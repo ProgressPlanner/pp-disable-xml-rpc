@@ -5,7 +5,7 @@ Tags: security, xml-rpc, hardening, disable xml-rpc
 Requires at least: 6.7
 Tested up to: 7.2
 Requires PHP: 7.4
-Stable tag: 1.6.1
+Stable tag: 1.6.2
 License: MIT
 License URI: https://mit-license.org
 
@@ -57,10 +57,19 @@ No. It is a small hardening utility, not a full security suite.
 
 == Changelog ==
 
+= 1.6.2 =
+* Block XML-RPC requests during plugin loading with an HTTP 403 (Forbidden) response.
+* Confirm compatibility with WordPress 7.1.4, 7.2 Beta 5, and 7.2 RC1; update Tested up to to 7.2.
+* Fix discovery of plugin listing banners and icons.
+* Clarify the plugin description and XML-RPC response.
+
 = 1.6.1 =
 * Current stable release.
 
 == Upgrade Notice ==
+
+= 1.6.2 =
+Improves XML-RPC request blocking, fixes listing artwork, and updates compatibility metadata after testing WordPress 7.2 prereleases.
 
 = 1.6.1 =
 A lightweight release that disables XML-RPC with no configuration required.
