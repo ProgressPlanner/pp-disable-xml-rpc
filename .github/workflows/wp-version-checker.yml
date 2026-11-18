@@ -1,0 +1,32 @@
+name: WordPress version checker
+
+# Opens an issue when the "Tested up to" line in readme.txt falls behind the
+# latest WordPress release (or an upcoming beta/RC), and closes it once updated.
+
+on:
+  push:
+    branches:
+      - main
+  schedule:
+    - cron: "0 0 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: true
+
+jobs:
+  wordpress-version-checker:
+    name: Check "Tested up to"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - name: WordPress version checker
+        uses: skaut/wordpress-version-checker@9d247334f5b30202cb9c1f4aee74c52f37399f69 # v2.2.3
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
